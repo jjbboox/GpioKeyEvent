@@ -2,13 +2,12 @@
 #define _GPIO_BUTTON_H_
 #include <Arduino.h>
 
-#define	DEF_ELIMINATING_JITTER_MS	20		// 默认消抖延时
-#define DEF_LONG_PRESS_WAIT_MS  1000		// 默认长按延时
+#define	DEF_ELIMINATING_JITTER_MS	20		// default eliminating jitter ms
+#define DEF_LONG_PRESS_WAIT_MS  1000		// default long press wait ms
 #define DEF_DB_PRESS_MS 300
 
 class GpioButton {
     public:
-    	// 构造函数，定义端口号，回调函数，初始化默认值
         GpioButton(uint8_t gpio_pin, void(*btn_press_event)()=nullptr) :
             GpioPin(gpio_pin), 
             ButtonPressEvent(btn_press_event), 
@@ -21,11 +20,10 @@ class GpioButton {
                 pinMode(GpioPin, INPUT_PULLUP);
                 digitalWrite(GpioPin, HIGH);
         };
-        // 绑定按键回调函数
+        // bind click event CB function
         void BindBtnPress(void(*btn_press_event)()) {
         	ButtonPressEvent = btn_press_event;
         };
-        // 绑定长按事件回调函数和长按的判定时长
         // bind long key press CB function
         bool BindBtnLongPress(void(*btn_long_press_event)(), uint16_t wait_ms=DEF_LONG_PRESS_WAIT_MS) {
             if(wait_ms < DEF_LONG_PRESS_WAIT_MS) return false;
@@ -43,16 +41,11 @@ class GpioButton {
             uint8_t current_gpio_state = digitalRead(GpioPin);
             uint32_t current_millis = millis();
             
-            // GPIO口状态未改变
+            // gpio status no change
             if(current_gpio_state == last_gpio_state) {
                 if(current_gpio_state == LOW) {
                     if(first_key_down_millis && !first_key_up_millis && (current_millis - first_key_down_millis > LongPressWaitMS)) {
                         if(!action_done && ButtonLongPressEvent != nullptr) {
-                            // Serial.print("current_millis:"); Serial.println(current_millis);
-                            // Serial.print("first_key_down_millis:"); Serial.println(first_key_down_millis);
-                            // Serial.print("ms:"); Serial.println(current_millis - first_key_up_millis);
-                            
-                            // Serial.println("Debug:Long Press Event.");
                             ButtonLongPressEvent();
                             action_done = true;
                         }
