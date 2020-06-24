@@ -26,17 +26,18 @@ class GpioButton {
         	ButtonPressEvent = btn_press_event;
         };
         // 绑定长按事件回调函数和长按的判定时长
+        // bind long key press CB function
         bool BindBtnLongPress(void(*btn_long_press_event)(), uint16_t wait_ms=DEF_LONG_PRESS_WAIT_MS) {
             if(wait_ms < DEF_LONG_PRESS_WAIT_MS) return false;
             ButtonLongPressEvent = btn_long_press_event;
             LongPressWaitMS = wait_ms;
             return true;
         };
-        // 绑定双击回调函数
+        // bind double click CB function
         void BindBtnDblPress(void(*btn_dbl_press_event)()) {
             ButtonDblPressEvent = btn_dbl_press_event;
         };
-        // 轮询函数
+        // loop function
         void loop(){
             
             uint8_t current_gpio_state = digitalRead(GpioPin);
@@ -67,28 +68,28 @@ class GpioButton {
                     }
                 }
             }
-            // GPIO口状态改变
+            // gpio status changed
             else {
                 if(current_millis - last_jitter_millis > DEF_ELIMINATING_JITTER_MS) {
-                    // 下降沿(key down)
+                    // key down
                     if(current_gpio_state == LOW) {
-                        // 检测周期内的初始按下
+                        // is first keydown in cycle
                         if(0 == first_key_down_millis) {
                             first_key_down_millis = current_millis;
                             first_key_up_millis = 0;
                             action_done = false;
                         }
-                        // 检测周期内并非第一次按下
+                        // is not first key down in cycle
                         else {
-                            // 如果已绑定双击事件
+                            // has define double click CB function
                             if(nullptr != ButtonDblPressEvent){
-                                // 判定检测周期内本次按下与上次释放之间的间隔是否大于消抖时间间隔
-                                if(	0 != first_key_up_millis // 按键检测周期内已存在按键释放
-                                    && (current_millis - first_key_up_millis) > DEF_ELIMINATING_JITTER_MS) {	// 且当前时点距离按键释放已超过消抖时长
-                                    // 判定双击是否有效
-                                    if(	false == action_done // 按键周期内尚未执行过事件
-                                        && current_millis - first_key_up_millis < DEF_DB_PRESS_MS) {	// 且再次按下按键时间距离上次释放按键时长小于双击判定时长
-                                        // 调用双击事件回调函数
+                                // key down mill - last key up mill > elimination jitter interval
+                                if(	0 != first_key_up_millis // is release key in event cycle
+                                    && (current_millis - first_key_up_millis) > DEF_ELIMINATING_JITTER_MS) {	// skip eliminating jitter
+                                    // is double click?
+                                    if(	false == action_done // did in event cycle?
+                                        && current_millis - first_key_up_millis < DEF_DB_PRESS_MS) {	// and 2nd click is in interval
+                                        // call double click event function
                                         // Serial.println("Debug:Double Press Event.");
                                         ButtonDblPressEvent();
                                         action_done = true;
@@ -98,18 +99,18 @@ class GpioButton {
                             }
                         }
                     }
-                    // 上升沿(key up)
+                    // key up
                     else {
                         if(!action_done && first_key_down_millis && first_key_up_millis == 0) {
                             first_key_up_millis = current_millis;
                         }
                     }
-                    // 保持现在的GPIO端口状态
+                    // Keep gpio status
                     last_gpio_state = current_gpio_state;
                     last_jitter_millis = current_millis;
                 }
             }
-            // 如果已执行过事件回调，则状态清零
+            
             if(action_done && current_gpio_state == HIGH) {
                 // Serial.println("Event Reset.");
                 first_key_down_millis = 0;
@@ -118,11 +119,11 @@ class GpioButton {
             }
         };
     protected:
-        uint8_t GpioPin;					// GPIO口编号
-        void (*ButtonPressEvent)();			// 单次短按事件回调函数指针
-        uint16_t LongPressWaitMS;			// 长按事件判定时长（毫秒）
-        void (*ButtonLongPressEvent)();		// 长按事件回调函数指针
-        void (*ButtonDblPressEvent)();		// 双击事件回调函数指针
+        uint8_t GpioPin;					        // gpio pin of key
+        void (*ButtonPressEvent)();       // Click Event CB function
+        uint16_t LongPressWaitMS;			    // Long press ms
+        void (*ButtonLongPressEvent)();		// Long press Event CB function
+        void (*ButtonDblPressEvent)();		// Double click Event CB function
         uint32_t first_key_down_millis;
         uint32_t first_key_up_millis;
         bool action_done;
