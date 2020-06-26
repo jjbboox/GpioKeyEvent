@@ -34,14 +34,14 @@ void setup() {
 
     Serial.begin(115200);
     
-		// bind button callback event function
-		Btn1.BindBtnPress(btn_1_click_event);
-		Btn1.BindBtnDblPress(btn_1_db_click_event);
-		Btn1.BindBtnLongPress(btn_1_long_press_event, 1500);
-		
-		Btn2.BindBtnPress(btn_2_click_event);
-		Btn2.BindBtnDblPress(btn_2_db_click_event);
-		Btn2.BindBtnLongPress(btn_2_long_press_event, 2000);
+	// bind button callback event function
+	Btn1.BindBtnPress(btn_1_click_event);
+	Btn1.BindBtnDblPress(btn_1_db_click_event);
+	Btn1.BindBtnLongPress(btn_1_long_press_event, 1500);
+
+	Btn2.BindBtnPress(btn_2_click_event);
+	Btn2.BindBtnDblPress(btn_2_db_click_event);
+	Btn2.BindBtnLongPress(btn_2_long_press_event, 2000);
 }
 
 void keyEventLoop() {
@@ -53,5 +53,5 @@ void loop(){
     // Key Event
     keyEventLoop();
 		
-		// ...
+	// ...
 }
