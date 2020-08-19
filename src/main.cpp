@@ -1,4 +1,4 @@
-#include <gpio_button.h>
+#include <GpioKeyEvent.h>
 
 #define BUTTON_1_PIN 32
 #define BUTTON_2_PIN 33
