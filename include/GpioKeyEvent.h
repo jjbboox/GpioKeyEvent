@@ -20,7 +20,7 @@ typedef enum {
 class GpioButton {
     public:
         GpioButton(uint8_t _pin) : BtnPin(_pin) {
-            pinMode(BtnPin, INPUT);
+            pinMode(BtnPin, INPUT_PULLUP);
         }
         
         void bindEventOnClick(void (*callback)()) {
@@ -85,12 +85,17 @@ class GpioButton {
             else return KEY_UP;
         };
         void keyDownProc() {
-            LastKeyDownTimer = KeyDownTimer;
-            KeyDownTimer = millis();
-            isDone = false;
+            uint32_t tmpTimer = millis();
+            if(tmpTimer > KeyDownTimer + EliminatingJitterMs) {
+                LastKeyDownTimer = KeyDownTimer;
+                KeyDownTimer = tmpTimer;
+                isDone = false;
+            }
         };
         void keyUpProc() {
-            KeyUpTimer = millis();
+            uint32_t tmpTimer = millis();
+            if(tmpTimer > KeyUpTimer + EliminatingJitterMs) 
+                KeyUpTimer = tmpTimer;
         };
         void keyNoChange() {
             uint32_t nowTimer = millis();
@@ -120,7 +125,7 @@ class GpioButton {
             }
             // 按键释放状态
             else {
-                Serial.println("KeyStatus=" + String(KeyStatus));
+                // Serial.println("KeyStatus=" + String(KeyStatus));
                 
                 uint32_t fromKeyUp = nowTimer - KeyUpTimer;
                 if(fromKeyUp < EliminatingJitterMs) return;
