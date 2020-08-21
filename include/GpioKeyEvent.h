@@ -19,10 +19,12 @@ typedef enum {
 
 class GpioButton {
     public:
+        // 构造函数
         GpioButton(uint8_t _pin) : BtnPin(_pin) {
             pinMode(BtnPin, INPUT_PULLUP);
         }
         
+        // 事件绑定函数
         void bindEventOnClick(void (*callback)()) {
             on_click = callback;
         }
@@ -44,7 +46,7 @@ class GpioButton {
             on_key_up = callback;
         }
         
-
+        // set，get方法
         void setEliminatingJitterMs(uint16_t _ms) {EliminatingJitterMs = _ms;}
         void setLongClickMS(uint16_t _ms) {LongClickMS = _ms;}
         void setLongStartMS(uint16_t _ms) {LongStartMS = _ms;}
@@ -59,6 +61,7 @@ class GpioButton {
         uint32_t getLongPressNextTimeOut() {return LongPressNextTimeOut;}
         uint16_t getDblClickIntervalMS() {return DblClickIntervalMS;}
 
+        // 对象轮询函数
         void loop() {
             switch(getKeyAction()) {
                 case    KEY_DOWN:
@@ -80,12 +83,14 @@ class GpioButton {
         uint8_t     KeyDown = DEF_KEY_DOWN;
         uint8_t     KeyUp = DEF_KEY_UP;
 
+        // 参数
         uint16_t    EliminatingJitterMs = DEF_ELIMINATING_JITTER_MS;
         uint16_t    LongClickMS = DEF_LONG_CLICK_MS;
         uint16_t    LongStartMS = DEF_LONG_PRESS_START_MS;
         uint16_t    LongIntervalMS = DEF_LONG_PRESS_INTERVAL_MS;
         uint16_t    DblClickIntervalMS = DEF_DB_INTERVAL_MS;
 
+        // 控制变量
         uint32_t    LongClickTimeOut = 0;
         uint32_t    LongPressNextTimeOut = 0;
         uint32_t    DblClickTimeOut = 0;
@@ -106,6 +111,7 @@ class GpioButton {
         void (*on_key_down)() = nullptr;
         void (*on_key_up)() = nullptr;
 
+        // 捕获按键动作，按下，释放，无动作
         KeyAction getKeyAction() {
             uint8_t gpio_v = digitalRead(BtnPin);
             if(gpio_v == KeyStatus) return NO_CHANGE;
@@ -113,13 +119,16 @@ class GpioButton {
             if(gpio_v == KeyDown) return KEY_DOWN;
             else return KEY_UP;
         }
+        // 消抖函数
         bool isOutJitter(uint32_t _t) {
             return (_t > KeyUpTimer + EliminatingJitterMs) && (_t > KeyDownTimer + EliminatingJitterMs);
         }
+        // 事件结束处理
         void eventEndProcess(uint32_t _t) {
             LongClickTimeOut = LongPressNextTimeOut = DblClickTimeOut = _t;
             isReset = true;
         }
+        // 按下处理
         void keyDownProc() {
             uint32_t tmpTimer = millis();
             if(isOutJitter(tmpTimer)) {
@@ -132,6 +141,7 @@ class GpioButton {
                 isReset = false;
             }
         }
+        // 释放处理
         void keyUpProc() {
             uint32_t tmpTimer = millis();
             if(isOutJitter(tmpTimer)) {
@@ -146,10 +156,10 @@ class GpioButton {
                 }
             }
         }
+        // 无动作处理
         void keyNoChange() {
             uint32_t nowTimer = millis();
             uint32_t fromKeyDown = nowTimer - KeyDownTimer;
-            // Serial.println("isDone=" + String(isDone));
             
             // 按键按下状态
             if(!isReset && KeyStatus == KeyDown) {
