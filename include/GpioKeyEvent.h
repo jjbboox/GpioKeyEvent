@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 #define	DEF_ELIMINATING_JITTER_MS	20		// 消抖延时毫秒数
-#define DEF_LONG_CLICK_MS           1000    // 默认单次长按事件触发毫秒数
+#define DEF_LONG_CLICK_MS           2000    // 默认单次长按事件触发毫秒数
 #define DEF_DB_INTERVAL_MS          300     // 默认双击事件间隔毫秒数
 #define DEF_LONG_PRESS_START_MS     DEF_LONG_CLICK_MS   // 长按循环触发事件的起始毫秒数
 #define DEF_LONG_PRESS_INTERVAL_MS  500     // 长按循环触发触发事件的间隔毫秒数
@@ -35,6 +35,14 @@ class GpioButton {
         void bindEventOnLongPress(void (*callback)()) {
             on_long_press = callback;
         }
+        void bindEventOnKeyDown(void (*callback)()) {
+            on_key_down = callback;
+        }
+        void bindEventOnKeyUp(void (*callback)()) {
+            on_key_up = callback;
+        }
+        
+
         void setEliminatingJitterMs(uint16_t _ms) {EliminatingJitterMs = _ms;}
         void setLongClickMS(uint16_t _ms) {LongClickMS = _ms;}
         void setLongStartMS(uint16_t _ms) {LongStartMS = _ms;}
@@ -52,11 +60,11 @@ class GpioButton {
         void loop() {
             switch(getKeyAction()) {
                 case    KEY_DOWN:
-                    Serial.println("KEY_DOWN");
+                    // Serial.println("KEY_DOWN");
                     keyDownProc();
                     break;
                 case    KEY_UP:
-                    Serial.println("KEY_UP");
+                    // Serial.println("KEY_UP");
                     keyUpProc();
                     break;
                 default:
@@ -71,7 +79,7 @@ class GpioButton {
         uint8_t     KeyUp = DEF_KEY_UP;
 
         uint16_t    EliminatingJitterMs = DEF_ELIMINATING_JITTER_MS;
-        uint16_t    LongClickMS = DEF_DB_INTERVAL_MS;
+        uint16_t    LongClickMS = DEF_LONG_CLICK_MS;
         uint16_t    LongStartMS = DEF_LONG_PRESS_START_MS;
         uint16_t    LongIntervalMS = DEF_LONG_PRESS_INTERVAL_MS;
         uint16_t    DblClickIntervalMS = DEF_DB_INTERVAL_MS;
@@ -105,9 +113,13 @@ class GpioButton {
         bool isOutJitter(uint32_t _t) {
             return (_t > KeyUpTimer + EliminatingJitterMs) && (_t > KeyDownTimer + EliminatingJitterMs);
         }
+        void eventEndProcess(uint32_t _t) {
+            LongClickTimeOut = LongPressNextTimeOut = DblClickTimeOut = _t;
+        }
         void keyDownProc() {
             uint32_t tmpTimer = millis();
             if(isOutJitter(tmpTimer)) {
+                if(on_key_down) on_key_down();
                 LongClickTimeOut = tmpTimer + LongClickMS;
                 LongPressNextTimeOut = tmpTimer + LongStartMS;
                 LastKeyDownTimer = KeyDownTimer;
@@ -118,7 +130,9 @@ class GpioButton {
         void keyUpProc() {
             uint32_t tmpTimer = millis();
             if(isOutJitter(tmpTimer)) {
+                if(on_key_up) on_key_up();
                 KeyUpTimer = tmpTimer;
+                eventEndProcess(tmpTimer);
                 if(!isDone) {
                     DblClickTimeOut = tmpTimer + DblClickIntervalMS;
                 }
@@ -132,47 +146,32 @@ class GpioButton {
             // 按键按下状态
             if(KeyStatus == KeyDown) {
                 if(fromKeyDown < EliminatingJitterMs) return;
-                // if(!isDone && on_long_click && fromKeyDown > LongClickMS) {
-                //     // 触发on_long_click事件
-                //     on_long_click();
-                //     isDone = true;
-                //     return;
-                // }
                 if(!isDone && on_long_click && nowTimer > LongClickTimeOut) {
                     isDone = true;
                     on_long_click();
+                    eventEndProcess(nowTimer);
                 }
-                // else if(on_long_press && fromKeyDown > LongPressNextTimeOut) {
-                //     // 触发on_long_press事件
-                //     isDone = true;
-                //     on_long_press();
-                //     LongPressNextTimeOut += LongIntervalMS;
-                // }
                 else if(on_long_press && nowTimer > LongPressNextTimeOut) {
                     isDone = true;
                     on_long_press();
                     LongPressNextTimeOut += LongIntervalMS;
                 }
-                // else if(!isDone && on_db_click && LastKeyDownTimer && nowTimer < LastKeyDownTimer + DblClickIntervalMS) {
-                //     // 触发on_db_click事件
-                //     isDone = true;
-                //     on_db_click();
-                // }
                 else if(!isDone && on_db_click && nowTimer < DblClickTimeOut) {
                     isDone = true;
+                    DblClickTimeOut = nowTimer;
                     on_db_click();
+                    eventEndProcess(nowTimer);
                 }
             }
             // 按键释放状态
             else {
-                // Serial.println("KeyStatus=" + String(KeyStatus));
-                
                 uint32_t fromKeyUp = nowTimer - KeyUpTimer;
                 if(fromKeyUp < EliminatingJitterMs) return;
                 
                 if(!isDone && on_click && nowTimer > DblClickTimeOut) {
                     isDone = true;
                     on_click();
+                    eventEndProcess(nowTimer);
                 }
             }
         }
