@@ -63,6 +63,9 @@ void setup() {
 	Btn1.bindEventOnKeyDown([](){
 		Serial.println("Key Down Event.");
 	});
+	Btn1.bindEventOnKeyUp([](){
+		Serial.println("Key Up Event.");
+	});
 
 	// digitalWrite(BUTTON_1_PIN, DEF_KEY_UP);
 	// to = millis() + actions[action_index].ms;
