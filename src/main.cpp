@@ -36,20 +36,20 @@ void btn_2_long_press_event() {
 	Serial.println("Button_2 long press Event.");
 }
 
-static uint32_t to = 0;
-typedef struct {
-	uint32_t ms;
-	uint8_t	status;
-} btnActions;
+// static uint32_t to = 0;
+// typedef struct {
+// 	uint32_t ms;
+// 	uint8_t	status;
+// } btnActions;
 
-btnActions actions[] = {
-	{1000, DEF_KEY_DOWN},
-	{100, DEF_KEY_UP},
-	{100, DEF_KEY_UP},
-	{100, DEF_KEY_UP},
-};
-int action_index = 0;
-int action_cnt = 4;
+// btnActions actions[] = {
+// 	{1000, DEF_KEY_DOWN},
+// 	{100, DEF_KEY_UP},
+// 	{100, DEF_KEY_UP},
+// 	{100, DEF_KEY_UP},
+// };
+// int action_index = 0;
+// int action_cnt = 4;
 
 void setup() {
 
@@ -58,11 +58,11 @@ void setup() {
 	
 	Btn1.bindEventOnClick(btn_1_click_event);
 	Btn1.bindEventOnDBClick(btn_1_db_click_event);
-	// Btn1.bindEventOnLongClick(btn_1_long_click_event);
-	Btn1.bindEventOnLongPress(btn_1_long_press_event);
+	Btn1.bindEventOnLongClick(btn_1_long_click_event);
+	// Btn1.bindEventOnLongPress(btn_1_long_press_event);
 
-	digitalWrite(BUTTON_1_PIN, DEF_KEY_UP);
-	to = millis() + actions[action_index].ms;
+	// digitalWrite(BUTTON_1_PIN, DEF_KEY_UP);
+	// to = millis() + actions[action_index].ms;
 }
 
 void keyEventLoop() {
@@ -70,21 +70,21 @@ void keyEventLoop() {
     // Btn2.loop();
 }
 
-void actionLoop() {
-	if(action_index >= action_cnt) return;
-	if(millis() > to) {
-		Serial.println("TimeOut");
-		Serial.println("Btn GPIO Status set to " + String(actions[action_index].status));
-		Serial.println("action_index=" + String(action_index));
-		digitalWrite(BUTTON_1_PIN, actions[action_index].status);
-		action_index++;
-		// action_index %= action_cnt;
-		if(action_index >=action_cnt) return;
+// void actionLoop() {
+// 	if(action_index >= action_cnt) return;
+// 	if(millis() > to) {
+// 		Serial.println("TimeOut");
+// 		Serial.println("Btn GPIO Status set to " + String(actions[action_index].status));
+// 		Serial.println("action_index=" + String(action_index));
+// 		digitalWrite(BUTTON_1_PIN, actions[action_index].status);
+// 		action_index++;
+// 		// action_index %= action_cnt;
+// 		if(action_index >=action_cnt) return;
 
-		to = millis() + actions[action_index].ms;
-	}
-	delay(50);
-}
+// 		to = millis() + actions[action_index].ms;
+// 	}
+// 	delay(50);
+// }
 
 void loop(){
 	// actionLoop();

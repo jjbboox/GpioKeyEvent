@@ -35,7 +35,25 @@ class GpioButton {
         void bindEventOnLongPress(void (*callback)()) {
             on_long_press = callback;
         };
+        void setEliminatingJitterMs(uint16_t _ms) {EliminatingJitterMs = _ms;};
+        void setLongClickMS(uint16_t _ms) {LongClickMS = _ms;};
+        void setLongStartMS(uint16_t _ms) {LongStartMS = _ms;};
+        void setLongIntervalMS(uint16_t _ms) {LongIntervalMS = _ms;};
+        void setLongPressNextTimeOut(uint32_t _to) {LongPressNextTimeOut = _to;};
+        void setDblClickIntervalMS(uint16_t _ms) {DblClickIntervalMS = _ms;};
 
+        uint16_t getEliminatingJitterMs() { return EliminatingJitterMs;};
+        uint16_t getLongClickMS() {return LongClickMS;};
+        uint16_t getLongStartMS() {return LongStartMS;};
+        uint16_t getLongIntervalMS() {return LongIntervalMS;};
+        uint32_t getLongPressNextTimeOut() {return LongPressNextTimeOut;};
+        uint16_t getDblClickIntervalMS() {return DblClickIntervalMS;};
+// uint16_t    EliminatingJitterMs = DEF_ELIMINATING_JITTER_MS;
+// uint16_t    LongClickMS = DEF_DB_INTERVAL_MS;
+// uint16_t    LongStartMS = DEF_LONG_PRESS_START_MS;
+// uint16_t    LongIntervalMS = DEF_LONG_PRESS_INTERVAL_MS;
+// uint32_t    LongPressNextMS = DEF_LONG_PRESS_START_MS;
+// uint16_t    DblClickIntervalMS = DEF_DB_INTERVAL_MS;
         void loop() {
             switch(getKeyAction()) {
                 case    KEY_DOWN:
@@ -61,7 +79,7 @@ class GpioButton {
         uint16_t    LongClickMS = DEF_DB_INTERVAL_MS;
         uint16_t    LongStartMS = DEF_LONG_PRESS_START_MS;
         uint16_t    LongIntervalMS = DEF_LONG_PRESS_INTERVAL_MS;
-        uint32_t    LongPressNextMS = DEF_LONG_PRESS_START_MS;
+        uint32_t    LongPressNextTimeOut = 0;
         uint16_t    DblClickIntervalMS = DEF_DB_INTERVAL_MS;
 
         // 计时器
@@ -87,6 +105,7 @@ class GpioButton {
         void keyDownProc() {
             uint32_t tmpTimer = millis();
             if(tmpTimer > KeyDownTimer + EliminatingJitterMs) {
+                LongPressNextTimeOut = tmpTimer + LongStartMS;
                 LastKeyDownTimer = KeyDownTimer;
                 KeyDownTimer = tmpTimer;
                 isDone = false;
@@ -111,11 +130,11 @@ class GpioButton {
                     isDone = true;
                     return;
                 }
-                else if(on_long_press && fromKeyDown > LongPressNextMS) {
+                else if(on_long_press && fromKeyDown > LongPressNextTimeOut) {
                     // 触发on_long_press事件
                     isDone = true;
                     on_long_press();
-                    LongPressNextMS += LongIntervalMS;
+                    LongPressNextTimeOut += LongIntervalMS;
                 }
                 else if(!isDone && on_db_click && LastKeyDownTimer && nowTimer < LastKeyDownTimer + DblClickIntervalMS) {
                     // 触发on_db_click事件
