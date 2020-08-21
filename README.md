@@ -1,8 +1,8 @@
-## Welcome to GitHub Pages
+## 按键处理用的类(for Arduino)
 
-You can use the [editor on GitHub](https://github.com/jjbboox/GpioKeyEvent/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+你可以使用这里类来绑定某一个GPIO作为按键输入。
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+使用轮询方式实现，并可以通过绑定回调函数来实现事件处理。
 
 ### Markdown
 
