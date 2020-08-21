@@ -34,7 +34,7 @@ void btn_1_long_click_event() {
 
 void setup() {
 	// 初始化串口用于输出调试信息
-    Serial.begin(115200);
+	Serial.begin(115200);
 	Serial.println("Start");
 	
 	// 绑定事件回调函数
@@ -55,12 +55,12 @@ void setup() {
 
 // 按键轮询函数
 void keyEventLoop() {
-    Btn1.loop();
+	Btn1.loop();
 }
 
 void loop(){
-    // Key Event
-    keyEventLoop();
+	// Key Event
+	keyEventLoop();
 		
 	// ...
 }
