@@ -48,12 +48,7 @@ class GpioButton {
         uint16_t getLongIntervalMS() {return LongIntervalMS;};
         uint32_t getLongPressNextTimeOut() {return LongPressNextTimeOut;};
         uint16_t getDblClickIntervalMS() {return DblClickIntervalMS;};
-// uint16_t    EliminatingJitterMs = DEF_ELIMINATING_JITTER_MS;
-// uint16_t    LongClickMS = DEF_DB_INTERVAL_MS;
-// uint16_t    LongStartMS = DEF_LONG_PRESS_START_MS;
-// uint16_t    LongIntervalMS = DEF_LONG_PRESS_INTERVAL_MS;
-// uint32_t    LongPressNextMS = DEF_LONG_PRESS_START_MS;
-// uint16_t    DblClickIntervalMS = DEF_DB_INTERVAL_MS;
+
         void loop() {
             switch(getKeyAction()) {
                 case    KEY_DOWN:
