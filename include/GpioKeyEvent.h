@@ -31,9 +31,11 @@ class GpioButton {
         }
         void bindEventOnLongClick(void (*callback)()) {
             on_long_click = callback;
+            on_long_press = nullptr;
         }
         void bindEventOnLongPress(void (*callback)()) {
             on_long_press = callback;
+            on_long_click = nullptr;
         }
         void bindEventOnKeyDown(void (*callback)()) {
             on_key_down = callback;
@@ -94,6 +96,7 @@ class GpioButton {
         uint32_t    KeyUpTimer = 0;
         uint8_t     KeyStatus = DEF_KEY_UP;
         bool        isDone = true;
+        bool        isReset = true;
 
         // event callback function ptr
         void (*on_click)() = nullptr;
@@ -115,6 +118,7 @@ class GpioButton {
         }
         void eventEndProcess(uint32_t _t) {
             LongClickTimeOut = LongPressNextTimeOut = DblClickTimeOut = _t;
+            isReset = true;
         }
         void keyDownProc() {
             uint32_t tmpTimer = millis();
@@ -125,6 +129,7 @@ class GpioButton {
                 LastKeyDownTimer = KeyDownTimer;
                 KeyDownTimer = tmpTimer;
                 isDone = false;
+                isReset = false;
             }
         }
         void keyUpProc() {
@@ -136,6 +141,9 @@ class GpioButton {
                 if(!isDone) {
                     DblClickTimeOut = tmpTimer + DblClickIntervalMS;
                 }
+                else {
+                    isReset = true;
+                }
             }
         }
         void keyNoChange() {
@@ -144,7 +152,7 @@ class GpioButton {
             // Serial.println("isDone=" + String(isDone));
             
             // 按键按下状态
-            if(KeyStatus == KeyDown) {
+            if(!isReset && KeyStatus == KeyDown) {
                 if(fromKeyDown < EliminatingJitterMs) return;
                 if(!isDone && on_long_click && nowTimer > LongClickTimeOut) {
                     isDone = true;
