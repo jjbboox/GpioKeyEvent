@@ -20,7 +20,7 @@ typedef enum {
 class GpioButton {
     public:
         // 构造函数
-        GpioButton(uint8_t _pin, uint8_t _mode=INPUT_PULLUP, uint8_t _up_v=HIGH) : BtnPin(_pin), KeyUp(_up_v), KeyDown(_up_v==HIGH?LOW:HIGH) {
+        GpioButton(uint8_t _pin, uint8_t _mode=INPUT_PULLUP, uint8_t _up_v=DEF_KEY_UP) : BtnPin(_pin), KeyUp(_up_v), KeyDown(_up_v==HIGH?LOW:HIGH) {
             pinMode(BtnPin, _mode);
         }
         
