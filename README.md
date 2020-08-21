@@ -4,34 +4,65 @@
 
 使用轮询方式实现，并可以通过绑定回调函数来实现事件处理。
 
-### Markdown
+### 使用例
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+参考以下代码示例来使用这个类
 
-```markdown
-Syntax highlighted code block
+```main.cpp
+#include <GpioKeyEvent.h>
 
-# Header 1
-## Header 2
-### Header 3
+#define BUTTON_1_PIN D1
 
-- Bulleted
-- List
+// 定义一个按键实体
+GpioButton Btn1(BUTTON_1_PIN);
 
-1. Numbered
-2. List
+void btn_1_click_event() {
+	Serial.println("<Event>Click");
+}
 
-**Bold** and _Italic_ and `Code` text
+void btn_1_db_click_event() {
+	Serial.println("<Event>Double Click");
+}
 
-[Link](url) and ![Image](src)
+void btn_1_long_press_event() {
+	Serial.println("<Event>Long Press Tick");
+}
+
+void btn_1_long_click_event() {
+	Serial.println("<Event>Long Click");
+}
+
+void setup() {
+	// 初始化串口用于输出调试信息
+    Serial.begin(115200);
+	Serial.println("Start");
+	
+	// 绑定事件回调函数
+	Btn1.bindEventOnClick(btn_1_click_event);
+	Btn1.bindEventOnDBClick(btn_1_db_click_event);
+	Btn1.bindEventOnLongClick(btn_1_long_click_event);
+	Btn1.bindEventOnLongPress(btn_1_long_press_event);
+
+	// 直接新建回调函数
+	Btn1.bindEventOnKeyDown([](){
+		Serial.println("<Event>Key Down");
+	});
+	Btn1.bindEventOnKeyUp([](){
+		Serial.println("<Event>Key Up");
+	});
+
+}
+
+// 按键轮询函数
+void keyEventLoop() {
+    Btn1.loop();
+}
+
+void loop(){
+    // Key Event
+    keyEventLoop();
+		
+	// ...
+}
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/jjbboox/GpioKeyEvent/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
