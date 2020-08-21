@@ -58,8 +58,11 @@ void setup() {
 	
 	Btn1.bindEventOnClick(btn_1_click_event);
 	Btn1.bindEventOnDBClick(btn_1_db_click_event);
-	Btn1.bindEventOnLongClick(btn_1_long_click_event);
-	// Btn1.bindEventOnLongPress(btn_1_long_press_event);
+	// Btn1.bindEventOnLongClick(btn_1_long_click_event);
+	Btn1.bindEventOnLongPress(btn_1_long_press_event);
+	Btn1.bindEventOnKeyDown([](){
+		Serial.println("Key Down Event.");
+	});
 
 	// digitalWrite(BUTTON_1_PIN, DEF_KEY_UP);
 	// to = millis() + actions[action_index].ms;
