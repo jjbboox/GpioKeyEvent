@@ -22,39 +22,14 @@ typedef enum {
 class GpioButton {
     private:
         // 静态对象链表头
-        // static GpioButton* obj_list;
         static vector<GpioButton*> obj_list;
         
         // 添加按钮到静态链表最后
-        // static void addBtn(GpioButton* gbtn) {
-        //     if(!obj_list) obj_list = gbtn;
-        //     else {
-        //         GpioButton* tmpGpioBtn = obj_list;
-        //         while(tmpGpioBtn->next) {
-        //             tmpGpioBtn = tmpGpioBtn->next;
-        //         }
-        //         tmpGpioBtn->next = gbtn;
-        //     }
-        // };
         static void addBtn(GpioButton* g_btn) {
             obj_list.push_back(g_btn);
         }
         
         // 删除链表中的指定按钮
-        // static void deleteBtn(GpioButton* gbtn) {
-        //     if(obj_list) {
-        //         if(obj_list == gbtn) {
-        //             obj_list = gbtn->next;
-        //         }
-        //         else {
-        //             GpioButton* tmpGpioBtn = obj_list;
-        //             while(tmpGpioBtn->next != gbtn) {
-        //                 tmpGpioBtn = tmpGpioBtn->next;
-        //             }
-        //             tmpGpioBtn->next = gbtn->next;
-        //         }
-        //     }
-        // };
         static boolean deleteBtn(GpioButton* g_btn) {
             vector<GpioButton*>::iterator it;
             for(it=obj_list.begin(); it!=obj_list.end(); it++) {
@@ -257,7 +232,6 @@ class GpioButton {
         }
 };
 
-// GpioButton* GpioButton::obj_list = nullptr;
 vector<GpioButton*> GpioButton::obj_list;
 
 #endif
