@@ -55,6 +55,7 @@ void setup() {
 // 按键轮询函数
 void keyEventLoop() {
     // Btn1.loop();
+	// 不管定义多少个GpioButton实例，只需要调用该类得静态轮询函数即可实现所有按钮得轮询操作
 	GpioButton::Loop();
 }
 
