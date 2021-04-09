@@ -4,6 +4,7 @@
 
 // 定义一个按键实体
 GpioButton Btn1(BUTTON_1_PIN);
+GpioButton Btn2(D2);
 
 void btn_1_click_event() {
 	Serial.println("<Event>Click");
@@ -45,11 +46,16 @@ void setup() {
 		Serial.println("<Event>Key Up");
 	});
 
+	Btn2.bindEventOnClick([](){
+		Serial.println("<Event>Key2 Click");
+	});
+
 }
 
 // 按键轮询函数
 void keyEventLoop() {
-    Btn1.loop();
+    // Btn1.loop();
+	GpioButton::Loop();
 }
 
 void loop(){
