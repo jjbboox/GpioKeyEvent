@@ -18,13 +18,59 @@ typedef enum {
 } KeyAction;
 
 class GpioButton {
+    private:
+        // 静态对象链表头
+        static GpioButton* obj_list;
+        
+        // 添加按钮到静态链表最后
+        static void addBtn(GpioButton* gbtn) {
+            if(!obj_list) obj_list = gbtn;
+            else {
+                GpioButton* tmpGpioBtn = obj_list;
+                while(tmpGpioBtn->next) {
+                    tmpGpioBtn = tmpGpioBtn->next;
+                }
+                tmpGpioBtn->next = gbtn;
+            }
+        };
+        
+        // 删除链表中的指定按钮
+        static void deleteBtn(GpioButton* gbtn) {
+            if(obj_list) {
+                if(obj_list == gbtn) {
+                    obj_list = gbtn->next;
+                }
+                else {
+                    GpioButton* tmpGpioBtn = obj_list;
+                    while(tmpGpioBtn->next != gbtn) {
+                        tmpGpioBtn = tmpGpioBtn->next;
+                    }
+                    tmpGpioBtn->next = gbtn->next;
+                }
+            }
+        };
+
     public:
         // 构造函数
         GpioButton(uint8_t _pin, uint8_t _mode=INPUT_PULLUP, uint8_t _up_v=DEF_KEY_UP) : BtnPin(_pin), KeyUp(_up_v) {
+            GpioButton::addBtn(this);
             KeyDown = (KeyUp==HIGH)?LOW:HIGH;
             pinMode(BtnPin, _mode);
         }
         
+        ~GpioButton() {GpioButton::deleteBtn(this);}
+
+        // 循环链表，调用每一个按钮的loop方法
+        static void Loop() {
+            if(!obj_list) {
+                GpioButton* tmpGpioBtn = obj_list;
+                while(tmpGpioBtn) {
+                    tmpGpioBtn->loop();
+                    tmpGpioBtn = tmpGpioBtn->next;
+                }
+            }
+        }
+
         // 事件绑定函数
         void bindEventOnClick(void (*callback)()) {
             on_click = callback;
@@ -80,6 +126,9 @@ class GpioButton {
         }
         
     private:
+        // 指向下一个按钮链表
+        GpioButton *next;
+
         uint8_t     BtnPin;
         uint8_t     KeyDown = DEF_KEY_DOWN;
         uint8_t     KeyUp = DEF_KEY_UP;
@@ -195,5 +244,7 @@ class GpioButton {
             }
         }
 };
+
+GpioButton* GpioButton::obj_list = nullptr;
 
 #endif
